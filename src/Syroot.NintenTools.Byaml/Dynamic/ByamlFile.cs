@@ -15,8 +15,13 @@ namespace Syroot.NintenTools.Byaml.Dynamic
     /// </summary>
     public class ByamlFile
     {
+        // ---- CONSTANTS ----------------------------------------------------------------------------------------------
+
+        private const ushort _magicBytes = 0x4259; // "BY"
+
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
 
+        private ByteOrder _byteOrder;
         private List<string> _nameArray;
         private List<string> _stringArray;
         private List<List<ByamlPathPoint>> _pathArray;
@@ -35,9 +40,19 @@ namespace Syroot.NintenTools.Byaml.Dynamic
         /// <param name="fileName">The name of the file to read the data from.</param>
         public static dynamic Load(string fileName)
         {
+            return Load(fileName, ByteOrder.BigEndian);
+        }
+
+        /// <summary>
+        /// Deserializes and returns the dynamic value of the BYAML node read from the given file.
+        /// </summary>
+        /// <param name="fileName">The name of the file to read the data from.</param>
+        /// <param name="byteOrder">The <see cref="ByteOrder"/> to read data in.</param>
+        public static dynamic Load(string fileName, ByteOrder byteOrder)
+        {
             using (FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                return Load(stream);
+                return Load(stream, byteOrder);
             }
         }
 
@@ -47,8 +62,30 @@ namespace Syroot.NintenTools.Byaml.Dynamic
         /// <param name="stream">The <see cref="Stream"/> to read the data from.</param>
         public static dynamic Load(Stream stream)
         {
+            return Load(stream, ByteOrder.BigEndian);
+        }
+
+        /// <summary>
+        /// Deserializes and returns the dynamic value of the BYAML node read from the specified stream.
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read the data from.</param>
+        /// <param name="byteOrder">The <see cref="ByteOrder"/> to read data in.</param>
+        public static dynamic Load(Stream stream, ByteOrder byteOrder)
+        {
             ByamlFile byamlFile = new ByamlFile();
-            return byamlFile.Read(stream);
+            return byamlFile.Read(stream, byteOrder);
+        }
+
+        /// <summary>
+        /// Serializes the given dynamic value which requires to be an array or dictionary of BYAML compatible values
+        /// and stores it in the given file. The saved BYAML will have a path array offset included.
+        /// </summary>
+        /// <param name="fileName">The name of the file to store the data in.</param>
+        /// <param name="root">The dynamic value becoming the root of the BYAML file. Must be an array or dictionary of
+        /// BYAML compatible values.</param>
+        public static void Save(string fileName, dynamic root)
+        {
+            Save(fileName, root, true, ByteOrder.BigEndian);
         }
 
         /// <summary>
@@ -62,25 +99,37 @@ namespace Syroot.NintenTools.Byaml.Dynamic
         /// this must be turned off.</param>
         public static void Save(string fileName, dynamic root, bool includePathArray)
         {
+            Save(fileName, root, includePathArray, ByteOrder.BigEndian);
+        }
+
+        /// <summary>
+        /// Serializes the given dynamic value which requires to be an array or dictionary of BYAML compatible values
+        /// and stores it in the given file.
+        /// </summary>
+        /// <param name="fileName">The name of the file to store the data in.</param>
+        /// <param name="root">The dynamic value becoming the root of the BYAML file. Must be an array or dictionary of
+        /// BYAML compatible values.</param>
+        /// <param name="includePathArray">Whether to include a path array offset in this BYAML. For Splatoon BYAMLs,
+        /// this must be turned off.</param>
+        /// <param name="byteOrder">The <see cref="ByteOrder"/> to store data in.</param>
+        public static void Save(string fileName, dynamic root, bool includePathArray, ByteOrder byteOrder)
+        {
             using (FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                Save(stream, root, includePathArray);
+                Save(stream, root, includePathArray, byteOrder);
             }
         }
 
         /// <summary>
         /// Serializes the given dynamic value which requires to be an array or dictionary of BYAML compatible values
-        /// and stores it in the given file. The saved BYAML will have a path array offset included.
+        /// and stores it in the specified stream. The saved BYAML will have a path array offset included.
         /// </summary>
-        /// <param name="fileName">The name of the file to store the data in.</param>
+        /// <param name="stream">The <see cref="Stream"/> to store the data in.</param>
         /// <param name="root">The dynamic value becoming the root of the BYAML file. Must be an array or dictionary of
         /// BYAML compatible values.</param>
-        public static void Save(string fileName, dynamic root)
+        public static void Save(Stream stream, dynamic root)
         {
-            using (FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                Save(stream, root);
-            }
+            Save(stream, root, true, ByteOrder.BigEndian);
         }
 
         /// <summary>
@@ -94,23 +143,25 @@ namespace Syroot.NintenTools.Byaml.Dynamic
         /// this must be turned off.</param>
         public static void Save(Stream stream, dynamic root, bool includePathArray)
         {
-            ByamlFile byamlFile = new ByamlFile();
-            byamlFile.Write(stream, root, includePathArray);
+            Save(stream, root, includePathArray, ByteOrder.BigEndian);
         }
 
         /// <summary>
         /// Serializes the given dynamic value which requires to be an array or dictionary of BYAML compatible values
-        /// and stores it in the specified stream. The saved BYAML will have a path array offset included.
+        /// and stores it in the specified stream.
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to store the data in.</param>
         /// <param name="root">The dynamic value becoming the root of the BYAML file. Must be an array or dictionary of
         /// BYAML compatible values.</param>
-        public static void Save(Stream stream, dynamic root)
+        /// <param name="includePathArray">Whether to include a path array offset in this BYAML. For Splatoon BYAMLs,
+        /// this must be turned off.</param>
+        /// <param name="byteOrder">The <see cref="ByteOrder"/> to store data in.</param>
+        public static void Save(Stream stream, dynamic root, bool includePathArray, ByteOrder byteOrder)
         {
             ByamlFile byamlFile = new ByamlFile();
-            byamlFile.Write(stream, root, true);
+            byamlFile.Write(stream, root, includePathArray, byteOrder);
         }
-
+        
         // ---- Helper methods ----
 
         /// <summary>
@@ -156,18 +207,22 @@ namespace Syroot.NintenTools.Byaml.Dynamic
         {
             return node?.Cast<T>().ToList();
         }
-        
+
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
 
-        private dynamic Read(Stream stream)
+        // ---- Loading ----
+
+        private dynamic Read(Stream stream, ByteOrder byteOrder)
         {
+            _byteOrder = byteOrder;
+
             // Open a reader on the given stream.
             using (BinaryDataReader reader = new BinaryDataReader(stream, Encoding.UTF8, true))
             {
-                reader.ByteOrder = ByteOrder.BigEndian;
+                reader.ByteOrder = _byteOrder;
 
-                // Load the header, specifying magic bytes, version and main node offsets.
-                if (reader.ReadString(2) != "BY") throw new ByamlException("Invalid BYAML header.");
+                // Load the header, specifying magic bytes ("BY"), version and main node offsets.
+                if (reader.ReadUInt16() != _magicBytes) throw new ByamlException("Invalid BYAML header.");
                 if (reader.ReadUInt16() != 0x0001) throw new ByamlException("Unsupported BYAML version.");
                 uint nameArrayOffset = reader.ReadUInt32();
                 uint stringArrayOffset = reader.ReadUInt32();
@@ -185,8 +240,8 @@ namespace Syroot.NintenTools.Byaml.Dynamic
                     _stringArray = ReadNode(reader);
                 }
 
-                // Check if this is a Splatoon BYAML, which has no path array offset.
-                if (offsetFour >= reader.Length)
+                // Check if this is a Splatoon or Super Mario Maker 3DS BYAML, which have no path array offset.
+                if (offsetFour >= reader.Length || offsetFour < offsetThree)
                 {
                     // The third offset is the root node, so just read that and we're done.
                     reader.Seek(offsetThree, SeekOrigin.Begin);
@@ -207,7 +262,7 @@ namespace Syroot.NintenTools.Byaml.Dynamic
                 }
             }
         }
-
+        
         private dynamic ReadNode(BinaryDataReader reader, ByamlNodeType nodeType = 0)
         {
             // Read the node type if it has not been provided yet.
@@ -231,7 +286,7 @@ namespace Syroot.NintenTools.Byaml.Dynamic
                 {
                     reader.Seek(-1);
                 }
-                int length = (int)(reader.ReadUInt32() & 0x00FFFFFF);
+                int length = (int)Get3LsbBytes(reader.ReadUInt32());
                 dynamic value = null;
                 switch (nodeType)
                 {
@@ -296,7 +351,7 @@ namespace Syroot.NintenTools.Byaml.Dynamic
 
             return array;
         }
-
+        
         private Dictionary<string, dynamic> ReadDictionaryNode(BinaryDataReader reader, int length)
         {
             Dictionary<string, dynamic> dictionary = new Dictionary<string, dynamic>();
@@ -304,9 +359,9 @@ namespace Syroot.NintenTools.Byaml.Dynamic
             // Read the elements of the dictionary.
             for (int i = 0; i < length; i++)
             {
-                uint idxAndType = reader.ReadUInt32();
-                int nodeNameIndex = (int)(idxAndType >> 8);
-                ByamlNodeType nodeType = (ByamlNodeType)(idxAndType & 0x000000FF);
+                uint indexAndType = reader.ReadUInt32();
+                int nodeNameIndex = (int)Get3MsbBytes(indexAndType);
+                ByamlNodeType nodeType = (ByamlNodeType)Get1MsbByte(indexAndType);
                 string nodeName = _nameArray[nodeNameIndex];
                 dictionary.Add(nodeName, ReadNode(reader, nodeType));
             }
@@ -374,8 +429,12 @@ namespace Syroot.NintenTools.Byaml.Dynamic
             return point;
         }
 
-        private void Write(Stream stream, object root, bool includePathArray)
+        // ---- Saving ----
+
+        private void Write(Stream stream, object root, bool includePathArray, ByteOrder byteOrder)
         {
+            _byteOrder = byteOrder;
+
             // Check if the root is of the correct type.
             if (root == null)
             {
@@ -397,10 +456,10 @@ namespace Syroot.NintenTools.Byaml.Dynamic
             // Open a writer on the given stream.
             using (BinaryDataWriter writer = new BinaryDataWriter(stream, Encoding.UTF8, true))
             {
-                writer.ByteOrder = ByteOrder.BigEndian;
+                writer.ByteOrder = _byteOrder;
 
                 // Write the header, specifying magic bytes, version and main node offsets.
-                writer.Write("BY", BinaryStringFormat.NoPrefixOrTermination);
+                writer.Write(_magicBytes);
                 writer.Write((short)0x0001);
                 Offset nameArrayOffset = writer.ReserveOffset();
                 Offset stringArrayOffset = writer.ReserveOffset();
@@ -532,8 +591,15 @@ namespace Syroot.NintenTools.Byaml.Dynamic
 
         private void WriteTypeAndLength(BinaryDataWriter writer, ByamlNodeType type, dynamic node)
         {
-            uint value = (uint)type << 24;
-            value |= (uint)Enumerable.Count(node);
+            uint value;
+            if (_byteOrder == ByteOrder.BigEndian)
+            {
+                value = (uint)type << 24 | (uint)Enumerable.Count(node);
+            }
+            else
+            {
+                value = (uint)type | (uint)Enumerable.Count(node) << 8;
+            }
             writer.Write(value);
         }
 
@@ -592,7 +658,14 @@ namespace Syroot.NintenTools.Byaml.Dynamic
             {
                 // Get the index of the key string in the file's name array and write it together with the type.
                 uint keyIndex = (uint)_nameArray.IndexOf(keyValuePair.Key);
-                writer.Write(keyIndex << 8 | (uint)GetNodeType(keyValuePair.Value));
+                if (_byteOrder == ByteOrder.BigEndian)
+                {
+                    writer.Write(keyIndex << 8 | (uint)GetNodeType(keyValuePair.Value));
+                }
+                else
+                {
+                    writer.Write(keyIndex | (uint)GetNodeType(keyValuePair.Value) << 24);
+                }
 
                 // Write the elements.
                 offsets.Add(WriteValue(writer, keyValuePair.Value));
@@ -667,6 +740,8 @@ namespace Syroot.NintenTools.Byaml.Dynamic
             writer.Write(point.Unknown);
         }
 
+        // ---- Helper methods ----
+
         private ByamlNodeType GetNodeType(dynamic node, bool isInternalNode = false)
         {
             if (isInternalNode)
@@ -686,6 +761,42 @@ namespace Syroot.NintenTools.Byaml.Dynamic
                 else if (node is float) return ByamlNodeType.Float;
                 else if (node == null) return ByamlNodeType.Null;
                 else throw new ByamlException($"Type '{node.GetType()}' is not supported as a BYAML node.");
+            }
+        }
+
+        private uint Get1MsbByte(uint value)
+        {
+            if (_byteOrder == ByteOrder.BigEndian)
+            {
+                return value & 0x000000FF;
+            }
+            else
+            {
+                return value >> 24;
+            }
+        }
+
+        private uint Get3LsbBytes(uint value)
+        {
+            if (_byteOrder == ByteOrder.BigEndian)
+            {
+                return value & 0x00FFFFFF;
+            }
+            else
+            {
+                return value >> 8;
+            }
+        }
+
+        private uint Get3MsbBytes(uint value)
+        {
+            if (_byteOrder == ByteOrder.BigEndian)
+            {
+                return value >> 8;
+            }
+            else
+            {
+                return value & 0x00FFFFFF;
             }
         }
     }
