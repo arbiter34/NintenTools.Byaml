@@ -5,14 +5,14 @@
     "language": "en-US",
     "name": "Syroot.NintenTools.Byaml",
     "title": "NintenTools.Byaml",
-    "version": "2.0.0",
+    "version": "2.1.0-beta1",
 
     "packOptions": {
         "iconUrl": "https://raw.githubusercontent.com/Syroot/NintenTools.Byaml/master/res/Logo.png",
         "licenseUrl": "https://raw.githubusercontent.com/Syroot/NintenTools.Byaml/master/COPYING",
         "owners": [ "Syroot" ],
         "projectUrl": "https://github.com/Syroot/NintenTools.Byaml",
-        "releaseNotes": "Added serialization API.",
+        "releaseNotes": "Added little endian support for Super Mario Maker 3DS.",
         "repository": {
             "type": "git",
             "url": "https://github.com/Syroot/NintenTools.Byaml"

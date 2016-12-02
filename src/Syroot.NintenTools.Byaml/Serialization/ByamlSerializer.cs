@@ -14,6 +14,10 @@ namespace Syroot.NintenTools.Byaml.Serialization
     /// </summary>
     public class ByamlSerializer
     {
+        // ---- CONSTANTS ----------------------------------------------------------------------------------------------
+
+        private const ushort _magicBytes = 0x4259; // "BY"
+
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
 
         private Dictionary<Type, ByamlObjectInfo> _byamlObjectInfos;
@@ -108,7 +112,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
             // Open a reader on the given stream.
             using (BinaryDataReader reader = new BinaryDataReader(stream, true))
             {
-                reader.ByteOrder = ByteOrder.BigEndian;
+                reader.ByteOrder = Settings.ByteOrder;
                 return (T)Read(reader, typeof(T));
             }
         }
@@ -152,7 +156,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
             // Open a reader on the given stream.
             using (BinaryDataWriter writer = new BinaryDataWriter(stream, true))
             {
-                writer.ByteOrder = ByteOrder.BigEndian;
+                writer.ByteOrder = Settings.ByteOrder;
                 Write(writer, obj);
             }
         }
@@ -164,7 +168,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
         private object Read(BinaryDataReader reader, Type type)
         {
             // Load the header which specifies magic bytes and BYAML version.
-            if (reader.ReadString(2) != "BY")
+            if (reader.ReadUInt16() != _magicBytes)
             {
                 throw new ByamlException("Invalid BYAML header.");
             }
@@ -226,7 +230,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
                 {
                     reader.Seek(-1);
                 }
-                int length = (int)(reader.ReadUInt32() & 0x00FFFFFF);
+                int length = (int)Get3LsbBytes(reader.ReadUInt32());
                 // Read the array data.
                 object value = null;
                 switch (nodeType)
@@ -332,8 +336,8 @@ namespace Syroot.NintenTools.Byaml.Serialization
             for (int i = 0; i < length; i++)
             {
                 uint indexAndType = reader.ReadUInt32();
-                int nodeNameIndex = (int)(indexAndType >> 8);
-                ByamlNodeType nodeType = (ByamlNodeType)(indexAndType & 0x000000FF);
+                int nodeNameIndex = (int)Get3MsbBytes(indexAndType);
+                ByamlNodeType nodeType = (ByamlNodeType)Get1MsbByte(indexAndType);
                 string key = _nameArray[nodeNameIndex];
                 // Find a member for it to map the value to.
                 object value;
@@ -524,7 +528,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
         private void Write(BinaryDataWriter writer, object obj)
         {
             // Write the header, specifying magic bytes, version and main node offsets.
-            writer.Write("BY", BinaryStringFormat.NoPrefixOrTermination);
+            writer.Write(_magicBytes);
             writer.Write((short)Settings.Version);
             Offset nameArrayOffset = writer.ReserveOffset();
             Offset stringArrayOffset = writer.ReserveOffset();
@@ -715,7 +719,14 @@ namespace Syroot.NintenTools.Byaml.Serialization
                 // Get the index of the key string in the file's name array and write it together with the type.
                 uint keyIndex = (uint)_nameArray.IndexOf(key);
                 ByamlNodeType nodeType = element == null ? ByamlNodeType.Null : GetNodeType(element.GetType());
-                writer.Write(keyIndex << 8 | (uint)nodeType);
+                if (Settings.ByteOrder == ByteOrder.BigEndian)
+                {
+                    writer.Write(keyIndex << 8 | (uint)nodeType);
+                }
+                else
+                {
+                    writer.Write(keyIndex | (uint)nodeType << 24);
+                }
 
                 // Write the elements. Complex types are just offsets, primitive types are directly written as values.
                 if (nodeType == ByamlNodeType.Array || nodeType == ByamlNodeType.Dictionary)
@@ -737,8 +748,15 @@ namespace Syroot.NintenTools.Byaml.Serialization
 
         private void WriteTypeAndElementCount(BinaryDataWriter writer, ByamlNodeType type, int count)
         {
-            uint value = (uint)type << 24;
-            value |= (uint)count;
+            uint value;
+            if (Settings.ByteOrder == ByteOrder.BigEndian)
+            {
+                value = (uint)type << 24 | (uint)count;
+            }
+            else
+            {
+                value = (uint)type | (uint)count << 8;
+            }
             writer.Write(value);
         }
 
@@ -804,6 +822,44 @@ namespace Syroot.NintenTools.Byaml.Serialization
         private bool IsTypeByamlObject(Type type)
         {
             return type.GetTypeInfo().GetCustomAttribute<ByamlObjectAttribute>(true) != null;
+        }
+
+        // ---- Helper methods ----
+
+        private uint Get1MsbByte(uint value)
+        {
+            if (Settings.ByteOrder == ByteOrder.BigEndian)
+            {
+                return value & 0x000000FF;
+            }
+            else
+            {
+                return value >> 24;
+            }
+        }
+
+        private uint Get3LsbBytes(uint value)
+        {
+            if (Settings.ByteOrder == ByteOrder.BigEndian)
+            {
+                return value & 0x00FFFFFF;
+            }
+            else
+            {
+                return value >> 8;
+            }
+        }
+
+        private uint Get3MsbBytes(uint value)
+        {
+            if (Settings.ByteOrder == ByteOrder.BigEndian)
+            {
+                return value >> 8;
+            }
+            else
+            {
+                return value & 0x00FFFFFF;
+            }
         }
     }
 }

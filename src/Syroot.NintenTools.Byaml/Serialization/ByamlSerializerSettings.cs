@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Syroot.IO;
 
 namespace Syroot.NintenTools.Byaml.Serialization
 {
@@ -14,12 +15,18 @@ namespace Syroot.NintenTools.Byaml.Serialization
         /// </summary>
         public ByamlSerializerSettings()
         {
+            ByteOrder = ByteOrder.BigEndian;
             SupportPaths = true;
             Version = ByamlVersion.Version1;
         }
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
         
+        /// <summary>
+        /// Gets or sets the <see cref="ByteOrder"/> the data will be read and stored with.
+        /// </summary>
+        public ByteOrder ByteOrder { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether <see cref="IEnumerable{ByamlPathPoint}"/> instances will be
         /// supported or expected in the BYAML file.
