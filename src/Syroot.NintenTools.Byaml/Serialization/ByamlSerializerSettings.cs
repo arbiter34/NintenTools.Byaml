@@ -11,12 +11,12 @@ namespace Syroot.NintenTools.Byaml.Serialization
         // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ByamlSerializerSettings"/> class.
+        /// Initializes a new instance of the <see cref="ByamlSerializerSettings"/> class with default settings (big
+        /// endian, no path arrays, version 1).
         /// </summary>
         public ByamlSerializerSettings()
         {
             ByteOrder = ByteOrder.BigEndian;
-            SupportPaths = true;
             Version = ByamlVersion.Version1;
         }
 
@@ -29,7 +29,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
 
         /// <summary>
         /// Gets or sets a value indicating whether <see cref="IEnumerable{ByamlPathPoint}"/> instances will be
-        /// supported or expected in the BYAML file.
+        /// supported and expected in the BYAML file.
         /// </summary>
         public bool SupportPaths { get; set; }
 
