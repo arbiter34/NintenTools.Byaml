@@ -1,0 +1,65 @@
+﻿{
+    "authors": [ "Syroot" ],
+    "copyright": "WTFPL",
+    "description": ".NET library providing loading, saving, and serialization support for the Nintendo BYAML format.",
+    "language": "en-US",
+    "name": "Syroot.NintenTools.Byaml",
+    "title": "NintenTools.Byaml",
+    "version": "2.1.0-beta2",
+
+    "packOptions": {
+        "iconUrl": "https://raw.githubusercontent.com/Syroot/NintenTools.Byaml/master/res/Logo.png",
+        "licenseUrl": "https://raw.githubusercontent.com/Syroot/NintenTools.Byaml/master/COPYING",
+        "owners": [ "Syroot" ],
+        "projectUrl": "https://github.com/Syroot/NintenTools.Byaml",
+        "releaseNotes": "Added little endian support for Super Mario Maker 3DS.",
+        "repository": {
+            "type": "git",
+            "url": "https://github.com/Syroot/NintenTools.Byaml"
+        },
+        "summary": ".NET library providing loading, saving, and serialization support for the Nintendo BYAML format.",
+        "tags": [ "byaml", "nintendo" ]
+    },
+    
+    "frameworks": {
+        "net45": {},
+        "netstandard1.6": {
+            "dependencies": {
+                "NETStandard.Library": "1.6.1"
+            },
+            "imports": "dnxcore50"
+        }
+    },
+
+    "dependencies": {
+        "Microsoft.CSharp": "4.*",
+        "Syroot.IO.BinaryData": "1.0.3",
+        "Syroot.Maths": "1.1.0",
+        "System.Dynamic.Runtime": "4.*"
+    },
+
+    "configurations": {
+        "debug": {
+            "buildOptions": {
+                "define": [ "DEBUG" ],
+                "debugType": "portable",
+                "optimize": false,
+                "xmlDoc": true
+            }
+        },
+        "release": {
+            "buildOptions": {
+                "define": [ "RELEASE" ],
+                "debugType": "none",
+                "optimize": true,
+                "xmlDoc": true
+            }
+        }
+    },
+
+    "scripts": {
+        "postcompile": [
+            "dotnet pack --no-build --configuration %compile:Configuration%"
+        ]
+    }
+}
