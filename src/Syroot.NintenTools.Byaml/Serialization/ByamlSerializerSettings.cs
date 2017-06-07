@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Syroot.IO;
+using Syroot.BinaryData;
 
 namespace Syroot.NintenTools.Byaml.Serialization
 {

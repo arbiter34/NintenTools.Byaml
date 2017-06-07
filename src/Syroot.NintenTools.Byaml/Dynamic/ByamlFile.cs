@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Syroot.IO;
+using Syroot.BinaryData;
 using Syroot.NintenTools.Byaml.IO;
 
 namespace Syroot.NintenTools.Byaml.Dynamic
@@ -114,8 +114,7 @@ namespace Syroot.NintenTools.Byaml.Dynamic
         /// <returns>The value stored under the given key or <c>null</c> if the key is not present.</returns>
         public static dynamic GetValue(IDictionary<string, dynamic> node, string key)
         {
-            dynamic value;
-            return node.TryGetValue(key, out value) ? value : null;
+            return node.TryGetValue(key, out dynamic value) ? value : null;
         }
 
         /// <summary>

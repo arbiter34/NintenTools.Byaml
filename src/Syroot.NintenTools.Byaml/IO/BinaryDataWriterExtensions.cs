@@ -1,4 +1,4 @@
-﻿using Syroot.IO;
+﻿using Syroot.BinaryData;
 using Syroot.Maths;
 
 namespace Syroot.NintenTools.Byaml.IO

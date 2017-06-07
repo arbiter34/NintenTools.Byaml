@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Syroot.IO;
+using Syroot.BinaryData;
 using Syroot.NintenTools.Byaml.IO;
 
 namespace Syroot.NintenTools.Byaml.Serialization
@@ -311,10 +311,9 @@ namespace Syroot.NintenTools.Byaml.Serialization
         private object ReadDictionary(BinaryDataReader reader, Type type, int length)
         {
             // Get the information required to serialize this type (for Nullables take the underlying type).
-            ByamlObjectInfo objectInfo;
             Type nullableType = Nullable.GetUnderlyingType(type);
             if (nullableType != null) type = nullableType;
-            if (!_byamlObjectInfos.TryGetValue(type, out objectInfo))
+            if (!_byamlObjectInfos.TryGetValue(type, out ByamlObjectInfo objectInfo))
             {
                 objectInfo = new ByamlObjectInfo(type);
                 _byamlObjectInfos.Add(type, objectInfo);
@@ -341,8 +340,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
                 string key = _nameArray[nodeNameIndex];
                 // Find a member for it to map the value to.
                 object value;
-                ByamlMemberInfo member;
-                if (objectInfo.Members.TryGetValue(key, out member))
+                if (objectInfo.Members.TryGetValue(key, out ByamlMemberInfo member))
                 {
                     // The key could be mapped to a member, read it as the member's type.
                     value = ReadValue(reader, member.Type, nodeType);
@@ -449,8 +447,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
         private void CollectArrayContents(object obj)
         {
             // Put strings into the string array.
-            string objString = obj as string;
-            if (objString != null)
+            if (obj is string objString)
             {
                 _stringArray.Add(objString);
                 return;
@@ -459,8 +456,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
             // Put paths into the path array (if supported).
             if (Settings.SupportPaths)
             {
-                List<ByamlPathPoint> objPath = obj as List<ByamlPathPoint>;
-                if (objPath != null)
+                if (obj is List<ByamlPathPoint> objPath)
                 {
                     _pathArray.Add(objPath);
                     return;
@@ -468,8 +464,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
             }
 
             // Traverse through arrays if the element type is of interest.
-            IList objArray = obj as IList;
-            if (objArray != null)
+            if (obj is IList objArray)
             {
                 Type elementType = objArray.GetType().GetTypeInfo().GetElementType();
                 if (elementType == typeof(string) || elementType is IList || IsTypeByamlObject(elementType))
@@ -486,8 +481,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
             Type type = obj.GetType();
             if (IsTypeByamlObject(type))
             {
-                ByamlObjectInfo objectInfo;
-                if (!_byamlObjectInfos.TryGetValue(type, out objectInfo))
+                if (!_byamlObjectInfos.TryGetValue(type, out ByamlObjectInfo objectInfo))
                 {
                     objectInfo = new ByamlObjectInfo(type);
                     _byamlObjectInfos.Add(type, objectInfo);
@@ -625,8 +619,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
             offset.Satisfy();
 
             // Serialize the value as an array.
-            IList objArray = obj as IList;
-            if (objArray != null)
+            if (obj is IList objArray)
             {
                 WriteArray(writer, objArray);
                 return;
@@ -685,8 +678,7 @@ namespace Syroot.NintenTools.Byaml.Serialization
             // Create a string-object dictionary out of the members.
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
             // Add the custom members if any have been created when collecting node contents previously.
-            Dictionary<string, object> customMembers;
-            if (_customMembers.TryGetValue(obj, out customMembers))
+            if (_customMembers.TryGetValue(obj, out Dictionary<string, object> customMembers))
             {
                 foreach (KeyValuePair<string, object> customMember in customMembers)
                 {
