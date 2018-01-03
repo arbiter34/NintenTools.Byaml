@@ -54,6 +54,11 @@ namespace Syroot.NintenTools.Byaml
         Float = 0xD2,
 
         /// <summary>
+        /// The node represents a 32-bit crc hash
+        /// </summary>
+        CRCHash = 0xD3,
+
+        /// <summary>
         /// The node represents <c>null</c>.
         /// </summary>
         Null = 0xFF

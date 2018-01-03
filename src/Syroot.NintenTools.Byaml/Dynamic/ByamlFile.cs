@@ -161,7 +161,8 @@ namespace Syroot.NintenTools.Byaml.Dynamic
 
                 // Load the header, specifying magic bytes ("BY"), version and main node offsets.
                 if (reader.ReadUInt16() != _magicBytes) throw new ByamlException("Invalid BYAML header.");
-                if (reader.ReadUInt16() != 0x0001) throw new ByamlException("Unsupported BYAML version.");
+                UInt16 version = reader.ReadUInt16();
+                if (version != 0x0001 && version != 0x0002) throw new ByamlException("Unsupported BYAML version.");
                 uint nameArrayOffset = reader.ReadUInt32();
                 uint stringArrayOffset = reader.ReadUInt32();
                 uint pathArrayOffset = 0;
@@ -261,6 +262,8 @@ namespace Syroot.NintenTools.Byaml.Dynamic
                         return reader.ReadInt32();
                     case ByamlNodeType.Float:
                         return reader.ReadSingle();
+                    case ByamlNodeType.CRCHash:
+                        return (UInt32)reader.ReadInt32();
                     case ByamlNodeType.Null:
                         reader.Seek(0x4);
                         return null;
@@ -480,6 +483,7 @@ namespace Syroot.NintenTools.Byaml.Dynamic
                     return null;
                 case ByamlNodeType.Integer:
                 case ByamlNodeType.Float:
+                case ByamlNodeType.CRCHash:
                     writer.Write(value);
                     return null;
                 case ByamlNodeType.Null:
@@ -685,6 +689,7 @@ namespace Syroot.NintenTools.Byaml.Dynamic
                 else if (node is IEnumerable) return ByamlNodeType.Array;
                 else if (node is bool) return ByamlNodeType.Boolean;
                 else if (node is int) return ByamlNodeType.Integer;
+                else if (node is UInt32) return ByamlNodeType.CRCHash;
                 else if (node is float) return ByamlNodeType.Float;
                 else if (node == null) return ByamlNodeType.Null;
                 else throw new ByamlException($"Type '{node.GetType()}' is not supported as a BYAML node.");
