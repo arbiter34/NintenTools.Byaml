@@ -1,9 +1,12 @@
-﻿using Syroot.NintenTools.Byaml.Dynamic;
+﻿using Syroot.BinaryData;
+using Syroot.NintenTools.Byaml.Dynamic;
+using Syroot.NintenTools.Yaz0;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +16,9 @@ namespace ByamlEditor
 {
     public partial class Form1 : Form
     {
+        private const string TEMP_FILE = "temp.byml";
+        private const UInt16 YAZ0_MAGIC_BYTES = 0x6159; // "Ya"
+
         private OpenFileDialog openFileDialog;
 
         private List<TreeNode> CurrentNodeMatches = new List<TreeNode>();
@@ -20,6 +26,8 @@ namespace ByamlEditor
         private int LastNodeIndex = 0;
 
         private string LastSearchText;
+
+        private bool compressed = false;
 
         public Form1()
         {
@@ -34,6 +42,29 @@ namespace ByamlEditor
             {
                 MessageBox.Show("Please entery a valid byml path.");
                 return;
+            }
+            if (!File.Exists(path))
+            {
+                return;
+            }
+            File.Copy(path, path + ".bak", true);
+
+            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                using (BinaryDataReader reader = new BinaryDataReader(stream, Encoding.UTF8, true))
+                {
+                    UInt16 magicBytes = reader.ReadUInt16();
+                    compressed = magicBytes == YAZ0_MAGIC_BYTES;
+                }
+            }
+            if (compressed)
+            {
+                Yaz0Compression.Decompress(path, TEMP_FILE);
+                if (textBoxBrowseByml.Text.Contains("sbyml"))
+                {
+                    textBoxBrowseByml.Text = textBoxBrowseByml.Text.Replace("sbyml", "byml");
+                }
+                path = TEMP_FILE;
             }
             Dictionary<string, dynamic> byamlData = ByamlFile.Load(path);
 

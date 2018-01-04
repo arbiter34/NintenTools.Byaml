@@ -42,6 +42,9 @@
     <Reference Include="Syroot.Maths, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Syroot.Maths.1.4.0\lib\net45\Syroot.Maths.dll</HintPath>
     </Reference>
+    <Reference Include="Syroot.NintenTools.Yaz0, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Syroot.NintenTools.Yaz0.0.5.0\lib\net45\Syroot.NintenTools.Yaz0.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

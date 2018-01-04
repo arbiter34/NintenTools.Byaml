@@ -17,6 +17,9 @@ namespace Syroot.NintenTools.Byaml.Dynamic
     {
         // ---- CONSTANTS ----------------------------------------------------------------------------------------------
 
+        /// <summary>
+        /// MagicBytes for byml
+        /// </summary>
         private const ushort _magicBytes = 0x4259; // "BY"
 
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
