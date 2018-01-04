@@ -94,6 +94,8 @@ namespace Syroot.NintenTools.Byaml
                     return typeof(int);
                 case ByamlNodeType.Float:
                     return typeof(float);
+                case ByamlNodeType.CRCHash:
+                    return typeof(UInt32);
                 case ByamlNodeType.Null:
                     return typeof(object);
                 default:

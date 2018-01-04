@@ -18,9 +18,9 @@
 		<RepositoryUrl>https://github.com/Syroot/NintenTools.Bfres</RepositoryUrl>
 		<ApplicationIcon />
 
-		<OutputType>Exe</OutputType>
+		<OutputType>Library</OutputType>
 
-		<StartupObject>Syroot.NintenTools.Byaml.Program</StartupObject>
+		<StartupObject></StartupObject>
 
 		<TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
 
@@ -29,16 +29,13 @@
 		<TargetFrameworkProfile />
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
-		<PackageReference Include="Syroot.IO.BinaryData" Version="2.0.0" />
-		<PackageReference Include="Syroot.Maths" Version="1.4.0" />
-		<PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
-	</ItemGroup>
-
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
 		<Reference Include="System" />
 		<Reference Include="Microsoft.CSharp" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Microsoft.CSharp" />
 	</ItemGroup>
 
 	<ItemGroup>

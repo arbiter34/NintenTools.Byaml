@@ -359,10 +359,12 @@ namespace Syroot.NintenTools.Byaml.Dynamic
 
         private ByamlPathPoint ReadPathPoint(BinaryDataReader reader)
         {
-            ByamlPathPoint point = new ByamlPathPoint();
-            point.Position = reader.ReadVector3F();
-            point.Normal = reader.ReadVector3F();
-            point.Unknown = reader.ReadUInt32();
+            ByamlPathPoint point = new ByamlPathPoint
+            {
+                Position = reader.ReadVector3F(),
+                Normal = reader.ReadVector3F(),
+                Unknown = reader.ReadUInt32()
+            };
             return point;
         }
 
