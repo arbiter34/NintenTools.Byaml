@@ -48,6 +48,6 @@ namespace Syroot.NintenTools.Byaml.Serialization
         /// <summary>
         /// Represents version 1 of the BYAML file format.
         /// </summary>
-        Version1 = 1
+        Version1 = 2
     }
 }

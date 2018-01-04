@@ -16,20 +16,32 @@
 		<PackageLicenseUrl>https://raw.githubusercontent.com/Syroot/NintenTools.Byaml/master/LICENSE</PackageLicenseUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/Syroot/NintenTools.Bfres</RepositoryUrl>
+		<ApplicationIcon />
 
-		<TargetFrameworks>net45;netstandard1.5</TargetFrameworks>
+		<OutputType>Library</OutputType>
+
+		<StartupObject></StartupObject>
+
+		<TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+
+		<TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+
+		<TargetFrameworkProfile />
 	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
-		<PackageReference Include="Syroot.IO.BinaryData" Version="2.0.0" />
-		<PackageReference Include="Syroot.Maths" Version="1.4.0" />
-		<PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
-	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
 		<Reference Include="System" />
 		<Reference Include="Microsoft.CSharp" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Microsoft.CSharp" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Properties\Settings.settings">
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	  </None>
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">

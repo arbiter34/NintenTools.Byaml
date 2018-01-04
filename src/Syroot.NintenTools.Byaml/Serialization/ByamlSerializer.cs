@@ -422,10 +422,12 @@ namespace Syroot.NintenTools.Byaml.Serialization
             List<ByamlPathPoint> path = InstantiateType<List<ByamlPathPoint>>(type);
             for (int i = 0; i < length; i++)
             {
-                ByamlPathPoint point = new ByamlPathPoint();
-                point.Position = reader.ReadVector3F();
-                point.Normal = reader.ReadVector3F();
-                point.Unknown = reader.ReadUInt32();
+                ByamlPathPoint point = new ByamlPathPoint
+                {
+                    Position = reader.ReadVector3F(),
+                    Normal = reader.ReadVector3F(),
+                    Unknown = reader.ReadUInt32()
+                };
                 path.Add(point);
             }
             return path;

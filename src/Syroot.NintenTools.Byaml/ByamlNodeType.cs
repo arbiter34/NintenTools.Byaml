@@ -54,6 +54,11 @@ namespace Syroot.NintenTools.Byaml
         Float = 0xD2,
 
         /// <summary>
+        /// The node represents a 32-bit crc hash
+        /// </summary>
+        CRCHash = 0xD3,
+
+        /// <summary>
         /// The node represents <c>null</c>.
         /// </summary>
         Null = 0xFF
@@ -89,6 +94,8 @@ namespace Syroot.NintenTools.Byaml
                     return typeof(int);
                 case ByamlNodeType.Float:
                     return typeof(float);
+                case ByamlNodeType.CRCHash:
+                    return typeof(UInt32);
                 case ByamlNodeType.Null:
                     return typeof(object);
                 default:
