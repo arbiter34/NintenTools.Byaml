@@ -14,7 +14,7 @@ using System.Windows.Forms;
 
 namespace ByamlEditor
 {
-    public partial class Form1 : Form
+    public partial class BymlEditor : Form
     {
         private const string TEMP_FILE = "temp.byml";
         private const UInt16 YAZ0_MAGIC_BYTES = 0x6159; // "Ya"
@@ -29,7 +29,7 @@ namespace ByamlEditor
 
         private bool compressed = false;
 
-        public Form1()
+        public BymlEditor()
         {
             InitializeComponent();
             openFileDialog = new OpenFileDialog();
@@ -83,7 +83,7 @@ namespace ByamlEditor
             }
         }
 
-        private void buttonSearch_Click(object sender, EventArgs e)
+        private void ButtonSearch_Click(object sender, EventArgs e)
         {
             string searchText = this.textBox1.Text;
             if (String.IsNullOrEmpty(searchText))
@@ -112,7 +112,7 @@ namespace ByamlEditor
             }
         }
 
-        private void treeViewByml_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void TreeViewByml_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (((TypedTreeNode)e.Node).Type.IsGenericType)
             {
@@ -162,7 +162,6 @@ namespace ByamlEditor
 
         private void SearchNodes(string SearchText, TreeNode StartNode)
         {
-            TreeNode node = null;
             while (StartNode != null)
             {
                 if (StartNode.Text.ToLower().Contains(SearchText.ToLower()))
@@ -175,7 +174,6 @@ namespace ByamlEditor
                 };
                 StartNode = StartNode.NextNode;
             };
-
         }
 
         private Predicate<object> HasGenericArgTypes(params Type[] types)
@@ -192,7 +190,7 @@ namespace ByamlEditor
             return maybeGenericType => maybeGenericType.GetType().IsGenericType && maybeGenericType.GetType().GetGenericTypeDefinition() == type;
         }
 
-        private void buttonSave_Click(object sender, EventArgs e)
+        private void ButtonSave_Click(object sender, EventArgs e)
         {
             Dictionary<string, dynamic> bymlData = TreeToByml((TypedTreeNode)treeViewByml.Nodes[0]);
             ByamlFile.Save(textBoxBrowseByml.Text, bymlData);

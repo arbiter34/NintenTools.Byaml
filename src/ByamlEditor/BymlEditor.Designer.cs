@@ -1,6 +1,6 @@
 ﻿namespace ByamlEditor
 {
-    partial class Form1
+    partial class BymlEditor
     {
         /// <summary>
         /// Required designer variable.
@@ -60,7 +60,7 @@
             this.treeViewByml.Name = "treeViewByml";
             this.treeViewByml.Size = new System.Drawing.Size(479, 362);
             this.treeViewByml.TabIndex = 2;
-            this.treeViewByml.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeViewByml_NodeMouseClick);
+            this.treeViewByml.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeViewByml_NodeMouseClick);
             // 
             // buttonLoadByml
             // 
@@ -82,7 +82,7 @@
             this.buttonSearch.TabIndex = 4;
             this.buttonSearch.Text = "Search";
             this.buttonSearch.UseVisualStyleBackColor = true;
-            this.buttonSearch.Click += new System.EventHandler(this.buttonSearch_Click);
+            this.buttonSearch.Click += new System.EventHandler(this.ButtonSearch_Click);
             // 
             // textBox1
             // 
@@ -99,7 +99,7 @@
             this.buttonSave.TabIndex = 6;
             this.buttonSave.Text = "Save";
             this.buttonSave.UseVisualStyleBackColor = true;
-            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+            this.buttonSave.Click += new System.EventHandler(this.ButtonSave_Click);
             // 
             // Form1
             // 
