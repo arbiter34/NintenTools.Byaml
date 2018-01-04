@@ -1,9 +1,3 @@
-# NintenTools.Byaml
+# BymlEditor
 
-This is a .NET library to handle the BYAML Nintendo data file format, allowing you to read and store the files as either dynamic objects or strongly-typed with serialized classes similar to what the .NET `XmlReader` and `XmlWriter` provide.
-
-The library is available as a [NuGet package](https://www.nuget.org/packages/Syroot.NintenTools.Byaml).
-
-## Support
-
-You can ask questions and suggest features on Discord aswell. Feel free to [join the NintenTools channel on the Syroot server](https://discord.gg/asB4uaf)!
+Modification of Syroot.NintenTools.Byaml which allows for editing of BotW BYML files (version 2).  Has basic UI and search feature, have done cursory modifications to test, but it's sure to have bugs.  Happy modding!
