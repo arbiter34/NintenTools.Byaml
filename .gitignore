@@ -252,4 +252,4 @@ paket-files/
 *.sln.iml
 
 # Test projects
-/src/Test
+/src/Test Release/
